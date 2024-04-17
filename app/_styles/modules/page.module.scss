@@ -1,0 +1,17 @@
+@use '/app/_styles/globals/layout';
+
+.main {
+  overflow: scroll;
+
+  &.start {
+    @include layout.grid-parent(start);
+  }
+
+  &.center {
+    @include layout.grid-parent(center);
+  }
+
+  & > * {
+    @include layout.grid-responsive-child();
+  }
+}

@@ -1,0 +1,40 @@
+@use '/app/_styles/globals/abstracts';
+
+.user-card {
+  @include abstracts.z1-elevation;
+  width: 100%;
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: abstracts.$background-color;
+  border-radius: 1rem;
+
+  .title {
+    @include abstracts.h5-font;
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  .section, .section > div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .section {
+    padding: 1rem 0;
+
+    &:not(:first-child) {
+      border-top: 0.0625rem solid abstracts.$border-stroke;
+    }
+
+    .subtitle {
+      @include abstracts.subtitle1-font;
+      text-decoration: underline;
+    }
+  }
+}

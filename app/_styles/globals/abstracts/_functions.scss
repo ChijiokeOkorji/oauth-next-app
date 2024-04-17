@@ -1,0 +1,13 @@
+@use "sass:color";
+
+@function color-emphasis($var-color: #000000, $emphasis: high) {
+  @if ($emphasis == medium) {
+    @return color.adjust($var-color, $alpha: -0.4);
+  } @else if ($emphasis == disabled) {
+    @return color.adjust($var-color, $saturation: -100%, $alpha: -0.6);
+  } @else if ($var-color == #ffffff) {
+    @return $var-color; // No alpha-shift for high emphasis plain white
+  }
+
+  @return color.adjust($var-color, $alpha: -0.1);
+}

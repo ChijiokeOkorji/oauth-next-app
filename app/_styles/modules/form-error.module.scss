@@ -1,0 +1,6 @@
+@use '/app/_styles/globals/abstracts';
+
+.form-error {
+  @include abstracts.caption-font;
+  color: abstracts.$error-color;
+}

@@ -1,0 +1,106 @@
+@use '/app/_styles/globals/abstracts';
+
+.input-box {
+  width: max(17.5rem, 50%);
+  margin: 0.5rem;
+  display: flex;
+  flex-direction: column;
+
+  &::before {
+    content: attr(data-placeHolder);
+    padding: 0 1rem;
+    background-color: abstracts.$background-color;
+    color: abstracts.color-emphasis(abstracts.$main-color, medium);
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    position: absolute;
+    left: 0.0625rem;
+    top: 0;
+    transform: scale(1) translate(0, 0.75rem);
+    transition: 0.2s;
+    transition-property: transform, background-color, font-size, padding;
+  }
+
+  &.focus-move::before {
+    transform: translate(0.8125rem, -0.5rem);
+    font-size: 0.75rem;
+    padding: 0 0.25rem;
+    letter-spacing: 0.025rem;
+    z-index: 1;
+  }
+
+  &.focus-color::before {
+    color: abstracts.$main-color;
+  }
+
+  .input {
+    height: 3rem;
+    padding: 0 0.75rem 0 1rem;
+    background-color: #ffffff00;
+    color: abstracts.$main-color;
+    border: 0.0625rem solid abstracts.$border-stroke;
+    border-radius: 0.25rem;
+    box-shadow: none;
+    outline: none;
+  }
+
+  &.focus-color {
+    &::before {
+      color: abstracts.$main-color;
+    }
+
+    .input {
+      padding: 0 0.6875rem 0 0.9375rem;
+      border: 0.125rem solid abstracts.$main-color;
+    }
+  }
+
+  &.error {
+    .input {
+      padding: 0 0.6875rem 0 0.9375rem;
+      border: 0.125rem solid abstracts.$error-color;
+    }
+
+    &::before {
+      left: 0.125rem;
+    }
+
+    &.focus-move::before {
+      // For errors, retain the placeholder color as long as it has moved (since the input border-color does not change onFocus/onBlur)
+      color: abstracts.$error-color;
+    }
+  }
+
+  .icon-area {
+    height: 2.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: {
+      right: 0.25rem;
+      top: 0.125rem;
+    };
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: abstracts.$background-color;
+    color: abstracts.color-emphasis(abstracts.$main-color, medium);
+    border-radius: 0.125rem;
+    cursor: default;
+  
+    & * {
+      width: 1.5rem;
+      margin: 0 0.625rem 0 0.75rem;
+      cursor: pointer;
+    }
+  }
+
+  .error-message {
+    @include abstracts.caption-font;
+    color: abstracts.$error-color;
+    margin: {
+      left: 1rem;
+      top: 0.25rem;
+    };
+  }
+}

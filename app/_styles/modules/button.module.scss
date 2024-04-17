@@ -1,0 +1,94 @@
+@use '/app/_styles/globals/abstracts';
+
+%button {
+  @include abstracts.button-font;
+  min-width: 4rem;
+  height: 2.25rem;
+  margin: 1rem 1rem;
+  padding: 0 1rem;
+  border: 1px solid #ffffff00;
+  border-radius: 0.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .icon {
+    font-size: 1.125rem;
+    margin-left: -0.25rem;
+  }
+
+  .label {
+    margin: 0 0.5rem;
+  }
+
+  &:disabled {
+    color: abstracts.color-emphasis(#000000, disabled);
+    cursor: default;
+  }
+}
+
+.contained {
+  @extend %button;
+  @include abstracts.z2-elevation;
+  background-color: abstracts.$main-color;
+  color: abstracts.color-emphasis(#ffffff);
+  transition: box-shadow 0.15s ease 0s;
+
+  &:hover {
+    @include abstracts.state-overlay(abstracts.$main-color, #ffffff00, 96%);
+  }
+
+  &:focus {
+    @include abstracts.state-overlay(abstracts.$main-color, #ffffff00, 90%);
+    @include abstracts.z5-elevation;
+    border-color: abstracts.$main-color;
+    transition-duration: 0.1s;
+  }
+
+  &:active {
+    @include abstracts.state-overlay(abstracts.$main-color, #ffffff00, 84%);
+    @include abstracts.z8-elevation;
+    border-color: abstracts.$main-color;
+    transition-duration: 0.2s;
+  }
+
+  &:disabled {
+    background-color: abstracts.color-emphasis(abstracts.$main-color, disabled);
+    border-color: #ffffff00;
+    box-shadow: none;
+  }
+}
+
+.outlined {
+  @extend %button;
+  background-color: #ffffff00;
+  color: abstracts.$main-color;
+  border-color: abstracts.$main-color;
+
+  &:hover {
+    @include abstracts.state-overlay(#ffffff00, abstracts.$main-color, 96%);
+  }
+
+  &:focus {
+    @include abstracts.state-overlay(#ffffff00, abstracts.$main-color, 90%);
+  }
+
+  &:active {
+    @include abstracts.state-overlay(#ffffff00, abstracts.$main-color, 84%);
+  }
+
+  &:disabled {
+    background-color: #ffffff00;
+    border-color: abstracts.color-emphasis(abstracts.$main-color, disabled);
+  }
+}
+
+.text {
+  @extend .outlined;
+  padding: 0;
+  border-color: #ffffff00;
+
+  &:disabled {
+    border-color: #ffffff00;
+  }
+}

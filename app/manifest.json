@@ -1,0 +1,21 @@
+{
+  "name": "Flutterwave Next App",
+  "short_name": "Flutterwave Next App",
+  "description": "This is a Next.js app built by Flutterwave.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

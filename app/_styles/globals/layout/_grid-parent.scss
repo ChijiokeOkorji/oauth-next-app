@@ -1,0 +1,33 @@
+@mixin grid-parent($align: 'start') {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  align-content: $align;
+
+  @media screen and (min-width: 40rem) {
+    & {
+      grid-template-columns: repeat(8, 1fr);
+    }
+  }
+  
+  @media screen and (min-width: 60rem) {
+    & {
+      grid-template-columns: repeat(12, 1fr);
+    }
+  }
+  
+  @media screen and (min-width: 80rem) {
+    & {
+      grid-template-columns: repeat(16, 1fr);
+    }
+  }
+  
+  @media screen and (min-width: 100rem) {
+    & {
+      grid-template-columns: repeat(20, 1fr);
+    }
+  }
+}
