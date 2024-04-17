@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import Login from "@/app/_components/auth/login";
 
@@ -17,7 +16,7 @@ interface SignInPageProp {
 }
 
 export default async function Signin({ searchParams: { callbackUrl } }: SignInPageProp) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (session) {
     return redirect(callbackUrl || '/');

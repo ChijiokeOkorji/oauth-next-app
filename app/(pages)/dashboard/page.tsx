@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import styles from '@/app/_styles/modules/page.module.scss';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+// import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import UserCard from '@/app/_components/dashboard/user-card';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Dashboard() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   return (
     <main className={clsx(
