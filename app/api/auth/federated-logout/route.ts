@@ -1,5 +1,3 @@
-'use server'
-
 import { JWT, getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -27,8 +25,9 @@ function sendEndSessionEndpointToURL(token: JWT) {
 }
 
 export async function GET(req: NextRequest) {
+  const token = await getToken({ req });
+
   try {
-    const token = await getToken({ req });
     if (token) {
       return sendEndSessionEndpointToURL(token);
     }
