@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "remote": "bash remote.sh",
     "initialize-database": "node -r dotenv/config ./scripts/initialize-database.js",
     "build": "next build",
     "start": "next start",
