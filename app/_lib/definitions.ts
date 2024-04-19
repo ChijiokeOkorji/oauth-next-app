@@ -1,20 +1,31 @@
-// This file contains type definitions for your data.
-// It describes the shape of the data, and what data type each property should accept.
-// However, these types are generated automatically if you're using an ORM such as Prisma.
-export type User = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  created_at: Date;
+export type UserState = {
+  errors?: {
+    firstName?: string[];
+    lastName?: string[];
+    email?: string[];
+    password?: string[];
+    confirmPassword?: string[];
+  };
+  message?: string;
 };
 
-export type UserAPICredentials = {
-  id: string;
-  user_id: string;
-  api_key: string;
-  client_id: string;
-  client_secret: string;
-  created_at: Date;
-  updated_at: Date;
+export type ClientCredentialsState = {
+  errors?: {
+    applicationName?: string[];
+    redirectUri?: string[];
+    webOrigin?: string[];
+  };
+  message?: string;
+};
+
+export type UserAPICredentialsResponse = {
+  apiKey: string;
+  clientId: string;
+  clientSecret: string;
+};
+
+export type CurrentClientCredentialDetailsResponse = {
+  applicationName: string;
+  redirectUri: string;
+  webOrigin: string;
 };

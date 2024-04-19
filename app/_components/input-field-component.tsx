@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { EyeIcon, EyeSlashIcon, XCircleIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import styles from '@/app/_styles/modules/input-field.module.scss';
@@ -10,6 +10,7 @@ name: The name value for the input field
 placeholder: store placeholder text in ::before pseudo-element
 errorMessage: error message to be displayed for invalid input
 errorOnly: When you don't want to display input-level errors, but instead capture general errors (eg. invalid credentials during authentication)
+initialValue: An input field that you want have initial values before modification
 readOnlyValue: An input field that you want to be read-only (no modifications possible)
 canCopy: Whether the copy icon should be displayed. This allows you to copy the contents of the input field to your clipboard
 showValues: Shared values from a parent component and used with multiple password-type input fields to indicate whether the values for all related components should be visible/hidden
@@ -23,7 +24,7 @@ interface BaseInputFieldProps {
 
 /*
 CONDITIONAL PROPS DEFINITION
-Either errorMessage | errorOnly | (readOnlyValue & canCopy)
+Either errorMessage (with optional initialValue) | errorOnly (with optional initialValue) | both readOnlyValue and canCopy
 
 COMBINED WITH
 
@@ -31,9 +32,10 @@ Either (readOnlyValue & canCopy) | (showValues & setShouldShowValues)
 */
 type ConfiguredInputFieldProps = BaseInputFieldProps &
 (
-  | { errorMessage?: string | undefined; errorOnly?: never; readOnlyValue?: never, canCopy?: never }
-  | { errorMessage?: never; errorOnly?: string | undefined; readOnlyValue?: never, canCopy?: never }
-  | { errorMessage?: never; errorOnly?: never; readOnlyValue?: string; canCopy?: boolean }
+  | { errorMessage?: string | undefined; errorOnly?: never; initialValue?: string | undefined; readOnlyValue?: never; canCopy?: never }
+  | { errorMessage?: never; errorOnly?: string | undefined;  initialValue?: string | undefined; readOnlyValue?: never; canCopy?: never }
+  | { errorMessage?: never; errorOnly?: never;  initialValue?: string | undefined; readOnlyValue?: never; canCopy?: never }
+  | { errorMessage?: never; errorOnly?: never;  initialValue?: never; readOnlyValue?: string; canCopy?: boolean }
 ) &
 (
   | {
@@ -50,10 +52,18 @@ type ConfiguredInputFieldProps = BaseInputFieldProps &
   }
 );
 
-export default function InputField({ type, name, placeholder, errorMessage, errorOnly, readOnlyValue = '', canCopy, showValues = false, setShouldShowValues }: ConfiguredInputFieldProps) {
-  const [value, setValue] = useState(readOnlyValue);
+export default function InputField({ type, name, placeholder, errorMessage, errorOnly, initialValue, readOnlyValue = '', canCopy, showValues = false, setShouldShowValues }: ConfiguredInputFieldProps) {
+  const [value, setValue] = useState(initialValue || readOnlyValue);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(showValues);
+
+  useEffect(() => {
+    if (initialValue) {
+      setValue(initialValue);
+    } else if (readOnlyValue) {
+      setValue(readOnlyValue);
+    }
+  }, [initialValue, readOnlyValue]); // Trigger the effect whenever initialValue or readOnlyValue changes
 
   const inputElement = useRef<HTMLInputElement>(null);
 
@@ -72,7 +82,6 @@ export default function InputField({ type, name, placeholder, errorMessage, erro
   const copyToClipboard = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(value);
-      console.log('Content copied to clipboard');
     } catch (error) {
       console.error('Failed to copy content to the clipboard: ', error);
     }

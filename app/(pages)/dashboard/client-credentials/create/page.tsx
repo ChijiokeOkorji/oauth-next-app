@@ -2,10 +2,10 @@ import clsx from 'clsx';
 import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import styles from '@/app/_styles/modules/page.module.scss';
-import UserCard from '@/app/_components/dashboard/user-card';
+import CreateClientCredentials from '@/app/_components/dashboard/create-client-credentials';
 
 export const metadata: Metadata = {
-  title: 'Dashboard'
+  title: 'Create Client Credentials'
 };
 
 export default async function Page() {
@@ -16,7 +16,7 @@ export default async function Page() {
       styles.main,
       styles.center
     )}>
-      <UserCard user={session?.user!} />
+      <CreateClientCredentials email={session?.user?.email!} />
     </main>
   );
 }

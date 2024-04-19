@@ -1,3 +1,5 @@
+'use client'
+
 import { useFormStatus } from 'react-dom';
 import styles from '@/app/_styles/modules/button.module.scss';
 

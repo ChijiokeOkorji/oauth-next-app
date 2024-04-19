@@ -1,12 +1,17 @@
 import clsx from 'clsx';
+import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import SignUpForm from '@/app/_components/auth/sign-up-form';
 import styles from '@/app/_styles/modules/page.module.scss';
+import NewUser from '@/app/_components/auth/new-user';
 
-export default async function Home() {
+export const metadata: Metadata = {
+  title: 'New User'
+};
+
+export default async function Page() {
   const session = await getServerSession();
-  
+
   if (session) {
     return redirect('/dashboard');
   } else {
@@ -15,7 +20,7 @@ export default async function Home() {
         styles.main,
         styles.center
       )}>
-        <SignUpForm />
+        <NewUser />
       </main>
     );
   }

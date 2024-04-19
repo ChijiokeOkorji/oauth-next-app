@@ -15,7 +15,7 @@ interface SignInPageProp {
   }
 }
 
-export default async function Signin({ searchParams: { callbackUrl } }: SignInPageProp) {
+export default async function Page({ searchParams: { callbackUrl } }: SignInPageProp) {
   const session = await getServerSession();
 
   if (session) {

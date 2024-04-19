@@ -1,9 +1,12 @@
 'use client'
 
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import styles from '@/app/_styles/modules/user-card.module.scss';
 import InputField from '@/app/_components/input-field-component';
 import Button from '@/app/_components/button';
+import { fetchUserAuthCredentials, generateNewApiKeys } from '@/app/_lib/actions';
+import { UserAPICredentialsResponse } from '@/app/_lib/definitions';
 
 interface UserCardProps {
   user:  {
@@ -13,9 +16,39 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user }: UserCardProps) {
+  const [authCredentials, setAuthCredentials] = useState<UserAPICredentialsResponse | undefined>();
+
+  useEffect(() => {
+    async function fetchAuthCredentials() {
+      if (user.email) {
+        const credentials = await fetchUserAuthCredentials(user.email);
+        setAuthCredentials(credentials);
+      }
+    }
+
+    fetchAuthCredentials();
+  }, [user.email]);
+
+  const handleGenerateNewApiKeys = useCallback(async () => {
+    if (user.email) {
+      const auth = await generateNewApiKeys(user.email);
+
+      setAuthCredentials((prev) => {
+        if (prev && auth.apiKey) {
+          return ({
+            ...prev,
+            apiKey: auth.apiKey
+          });
+        } else {
+          return prev;
+        }
+      });
+    }
+  }, [user.email]);
+
   return (
     <div className={styles['user-card']}>
-      {<div className={styles.title}>Dashboard</div>}
+      <div className={styles.title}>Dashboard</div>
       
       <div className={styles.section}>
         <div className={styles.subtitle}>Profile</div>
@@ -27,14 +60,17 @@ export default function UserCard({ user }: UserCardProps) {
         <div className={styles.subtitle}>Authentication</div>
 
         <div>
-          <InputField name="apiKeys" placeholder="API Key" readOnlyValue={'djknfkjdnfkjndfjkvnfdjdhnhvbhdjfbvdjhfbvjdfhbvjdhfbvjhdfbvhjdfbvjhdfbvjfhdvbfdhjvbfjhvbdfjhvbdfjhvbdfhjvbkjvn'} canCopy={true} />
-          <Button type='outlined' label="Regenerate API Key" />
+          <InputField name="apiKeys" placeholder="API Key" readOnlyValue={authCredentials?.apiKey || ' '} canCopy={true} />
+          <Button type='outlined' label="Regenerate API Key" onClick={handleGenerateNewApiKeys} />
         </div>
 
         <div>
-          <InputField name="clientId" placeholder="Client ID" readOnlyValue={'cmnfkcjndfkjvndjknvdkjv'} canCopy={true} />
-          <InputField name="clientSecret" placeholder="Client Secret" readOnlyValue={'ckjfnkdjnfvkjdnvjkndfvkjdnvkjndfkjvndkjvn'} canCopy={true} />
-          <Button type="outlined" label="New Client Credentials" />
+          <InputField name="clientId" placeholder="Client ID" readOnlyValue={authCredentials?.clientId || ' '} canCopy={true} />
+          <InputField name="clientSecret" placeholder="Client Secret" readOnlyValue={authCredentials?.clientSecret || ' '} canCopy={true} />
+          
+          <Link href="/dashboard/client-credentials/create">
+            <Button type="outlined" label="New Client Credentials" />
+          </Link>
         </div>
       </div>
 
