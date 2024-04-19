@@ -7,18 +7,18 @@ datasource db {
   url      = env("POSTGRES_PRISMA_URL")
 }
 
-model User {
+model user {
   id        String   @id @default(uuid())
   firstName String   @db.VarChar(50)
   lastName  String   @db.VarChar(50)
   email     String   @unique @db.VarChar(255)
   createdAt DateTime @default(now()) @db.Timestamp
-  auth      Auth?    
+  auth      auth?    
 }
 
-model Auth {
+model auth {
   id           String   @id @default(uuid())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String   @unique
   apiKey       String   @unique @db.VarChar(100)
   clientId     String?  @db.VarChar(100)
