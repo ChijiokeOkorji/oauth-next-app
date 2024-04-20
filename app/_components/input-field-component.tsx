@@ -134,19 +134,29 @@ export default function InputField({ type, name, placeholder, errorMessage, erro
         onBlur={handleBlur}
         ref={inputElement}
       />
-      <div className={styles['icon-area']}>
-        {
-          (canCopy) ? (<DocumentDuplicateIcon onMouseDown={copyToClipboard} />) : (
-            (!readOnlyValue) ? (
-              (type === 'password') ? (
-                (showPassword || showValues) ? (<EyeSlashIcon onMouseDown={togglePasswordVisibility} />) :
-                (<EyeIcon onMouseDown={togglePasswordVisibility} />)
-              ) :
-              (isInputFocused && value) ? (<XCircleIcon onMouseDown={clearInput} />) : null
+      {
+        (canCopy) ? (
+          <div className={styles['icon-area']} onMouseDown={copyToClipboard}>
+            <DocumentDuplicateIcon />
+          </div>
+        ) : (
+          (!readOnlyValue) ? (
+            (type === 'password') ? (
+              <div className={styles['icon-area']} onMouseDown={togglePasswordVisibility}>
+                {(showPassword || showValues) ? (
+                  <EyeSlashIcon />
+                ) :
+                (<EyeIcon />)}
+              </div>
+            ) :
+            (isInputFocused && value) ? (
+              <div className={styles['icon-area']} onMouseDown={clearInput}>
+                <XCircleIcon />
+              </div>
             ) : null
-          )
-        }
-      </div>
+          ) : null
+        )
+      }
       {errorMessage &&
         <div className={styles['error-message']}>{errorMessage}</div>
       }
