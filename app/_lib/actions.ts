@@ -98,14 +98,14 @@ export async function createUser(
   try {
     await createKeyCloakUser(validatedFields.data);
 
-    await prisma.user.create({
+    await prisma.users.create({
       data: {
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         email,
         auth: {
           create: {
-            apiKey: generateRandomApiKey()
+            api_key: generateRandomApiKey()
           }
         }
       }
@@ -129,37 +129,37 @@ export async function createUser(
 
 export async function fetchUserAuthCredentials(email: string) {
   try {
-    const { apiKey, clientId } = await prisma.auth.findFirst({
+    const { api_key, client_id } = await prisma.auths.findFirst({
       where: {
         user: {
-          email: email
+          email
         },
       },
       select: {
-        apiKey: true,
-        clientId: true
+        api_key: true,
+        client_id: true
       },
     });
 
-    let clientSecret;
+    let client_secret;
 
-    if (clientId) {
+    if (client_id) {
       const { data: tokenResponse } = await generateKeyCloakTokens();
 
-      const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${clientId}`, {
+      const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${client_id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${tokenResponse.access_token}`
         }
       });
 
-      clientSecret = data?.[0]?.secret;
+      client_secret = data?.[0]?.secret;
     }
 
     return {
-      apiKey,
-      clientId,
-      clientSecret
+      api_key,
+      client_id,
+      client_secret
     };
   } catch (error) {
     console.error('Error retrieving user auth data: ', error);
@@ -168,25 +168,26 @@ export async function fetchUserAuthCredentials(email: string) {
 
 export async function generateNewApiKeys(email: string) {
   try {
-    const { auth } = await prisma.user.update({
+    const { auth } = await prisma.users.update({
       where: {
-        email: email
+        email
       }, 
       data: {
         auth: {
           update: {
-            apiKey: generateRandomApiKey()
+            api_key: generateRandomApiKey()
           }
         }
       },
       select: {
         auth: {
           select: {
-            apiKey: true
+            api_key: true
           }
         }
       }
     });
+
     return auth;
   } catch (error) {
     console.error('Error generating new user API keys: ', error);
@@ -221,20 +222,20 @@ export async function createClientCredentials(
   const { applicationName, redirectUri, webOrigin } = validatedFields.data;
 
   try {
-    const { clientId } = await prisma.auth.findFirst({
+    const { client_id } = await prisma.auths.findFirst({
       where: {
         user: {
-          email: email
+          email
         }
       },
       select: {
-        clientId: true
+        client_id: true
       }
     });
 
     const { data: tokenResponse } = await generateKeyCloakTokens();
 
-    if (!clientId) {
+    if (!client_id) {
       const newClientId = crypto.randomUUID();
 
       // Create the client on KeyCloak (no response body is sent for successful requests)
@@ -256,28 +257,28 @@ export async function createClientCredentials(
       });
 
       // Insert the clientId into the database
-      await prisma.user.update({
+      await prisma.users.update({
         where: {
-          email: email
+          email
         }, 
         data: {
           auth: {
             update: {
-              clientId: newClientId
+              client_id: newClientId
             }
           }
         },
         select: {
           auth: {
             select: {
-              clientId: true
+              client_id: true
             }
           }
         }
       });
     } else {
       // Fetch the client using its clientId to grab its ID
-      const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${clientId}`, {
+      const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${client_id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${tokenResponse.access_token}`
@@ -328,22 +329,22 @@ export async function createClientCredentials(
 }
 
 export async function fetchCurrentClientCredentialDetails(email: string) {
-  const { clientId } = await prisma.auth.findFirst({
+  const { client_id } = await prisma.auths.findFirst({
     where: {
       user: {
-        email: email
+        email
       }
     },
     select: {
-      clientId: true
+      client_id: true
     }
   });
 
-  if (clientId) {
+  if (client_id) {
     const { data: tokenResponse } = await generateKeyCloakTokens();
 
     // Fetch the client using its clientId
-    const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${clientId}`, {
+    const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${client_id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${tokenResponse.access_token}`

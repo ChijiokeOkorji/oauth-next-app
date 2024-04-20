@@ -34,10 +34,10 @@ export default function UserCard({ user }: UserCardProps) {
       const auth = await generateNewApiKeys(user.email);
 
       setAuthCredentials((prev) => {
-        if (prev && auth.apiKey) {
+        if (prev && auth.api_key) {
           return ({
             ...prev,
-            apiKey: auth.apiKey
+            api_key: auth.api_key
           });
         } else {
           return prev;
@@ -60,13 +60,13 @@ export default function UserCard({ user }: UserCardProps) {
         <div className={styles.subtitle}>Authentication</div>
 
         <div>
-          <InputField name="apiKeys" placeholder="API Key" readOnlyValue={authCredentials?.apiKey || ' '} canCopy={true} />
+          <InputField name="apiKeys" placeholder="API Key" readOnlyValue={authCredentials?.api_key || ' '} canCopy={true} />
           <Button type='outlined' label="Regenerate API Key" onClick={handleGenerateNewApiKeys} />
         </div>
 
         <div>
-          <InputField name="clientId" placeholder="Client ID" readOnlyValue={authCredentials?.clientId || ' '} canCopy={true} />
-          <InputField name="clientSecret" placeholder="Client Secret" readOnlyValue={authCredentials?.clientSecret || ' '} canCopy={true} />
+          <InputField name="clientId" placeholder="Client ID" readOnlyValue={authCredentials?.client_id || ' '} canCopy={true} />
+          <InputField name="clientSecret" placeholder="Client Secret" readOnlyValue={authCredentials?.client_secret || ' '} canCopy={true} />
           
           <Link href="/dashboard/client-credentials/create">
             <Button type="outlined" label="New Client Credentials" />
