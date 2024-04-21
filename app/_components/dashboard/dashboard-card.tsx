@@ -8,14 +8,14 @@ import Button from '@/app/_components/button';
 import { fetchUserAuthCredentials, generateNewApiKeys } from '@/app/_lib/actions';
 import { UserAPICredentialsResponse } from '@/app/_lib/definitions';
 
-interface UserCardProps {
+interface DashboardCardProps {
   user:  {
     name?: string | null;
     email?: string | null;
   };
 }
 
-export default function UserCard({ user }: UserCardProps) {
+export default function DashboardCard({ user }: DashboardCardProps) {
   const [authCredentials, setAuthCredentials] = useState<UserAPICredentialsResponse | undefined>();
 
   useEffect(() => {

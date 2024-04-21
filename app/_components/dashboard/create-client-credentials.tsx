@@ -39,7 +39,6 @@ export default function CreateClientCredentials({ email }: { email: string }) {
       </div>
 
       <Form action={dispatch} title="Create Client Credentials">
-
         <InputField
           type="text"
           name="applicationName"

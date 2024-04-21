@@ -1,3 +1,5 @@
+'use client'
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EyeIcon, EyeSlashIcon, XCircleIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
