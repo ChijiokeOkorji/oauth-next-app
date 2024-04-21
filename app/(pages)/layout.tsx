@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-import { Providers } from '@/app/(pages)/auth/providers';
-import SessionGuard from '@/app/(pages)/auth/session-guard';
 import { Inter } from 'next/font/google';
 import '@/app/_styles/main.scss';
 
@@ -22,11 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <SessionGuard>
-            {children}
-          </SessionGuard>
-        </Providers>
+        {children}
       </body>
     </html>
   );
