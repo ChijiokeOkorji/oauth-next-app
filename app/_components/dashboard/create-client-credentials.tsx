@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { createClientCredentials, fetchCurrentClientCredentialDetails } from '@/app/_lib/actions';
