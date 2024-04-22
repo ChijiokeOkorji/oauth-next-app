@@ -39,9 +39,9 @@ npm run remote push --force
 # Removes the SSH keys afterwards
 ```
 
-## Getting Started
+## Start Development Server
 
-Next, run the development server:
+Once the environment variables have been specified, you can start the development server using the following command:
 
 ```bash
 npm run dev
