@@ -9,7 +9,7 @@ This Next.js app is designed to allow authentication, authorization, and Single 
 ## Environment Variables
 
 To run the Slack bot app, you need to set the following environment variables in a `.env` file:
-```
+```bash
 # Ensure that dotenv is installed
 SSH_KEY_PATH=~/.ssh/<PRIVATE_SSH_FILE_NAME>
 
