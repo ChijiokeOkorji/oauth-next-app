@@ -25,15 +25,18 @@ NEXTAUTH_SECRET=""
 NEXTAUTH_URL="http://<APP_BASE_URL>"
 ```
 
-Make sure to replace the variables with the actual secret values. A `.env.example` file has also been provided in the project's root directory. 
+Make sure to replace the variables with the actual secret values. A `.env.example` file has also been provided in the project's root directory for your reference. 
 
 You can learn more about getting started with NextAuth and KeyCloak [here](https://next-auth.js.org/providers/keycloak).
 
-If you do not intend to utilize SSH keys when pushing to the remote repository you can ignore the `SSH_KEY_PATH`, otherwise you can specify it and use the configured script for pushing to your remote repository:
+If you do not intend to utilize SSH keys when pushing to the remote repository you can ignore the `SSH_KEY_PATH`, otherwise you can specify it and use the configured script for interacting with your remote repository:
 ```bash
 npm run remote push --force
 
-# The above command adds your SSH keys (you would be prompted to input the password for your SSH keys if you have that configured), runs 'git push --force' and then removes the SSH keys afterwards
+# The above example command does the following:
+# Adds your SSH keys to your system (if configured, you would be prompted to input the password for your SSH keys)
+# Runs 'git push --force'
+# Removes the SSH keys afterwards
 ```
 
 ## Getting Started
