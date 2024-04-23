@@ -1,11 +1,13 @@
 'use server'
  
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/_lib/configs/db/prisma';
-import { generateRandomApiKey } from '@/app/_lib/utils/randomApiKey';
+import { generateRandomApiKey } from '@/app/_lib/utils/random-api-key';
 import { UserState, ClientCredentialsState } from '@/app/_lib/definitions';
+import { assignKeycloakRealmRole, createKeycloakClient, createKeycloakUser, getClientIdObject, regenerateClientSecret, updateKeycloakClient } from '@/app/_lib/utils/keycloak';
+import { isAdminEmail } from './utils/regex-test';
 
 const UserCreationSchema = z.object({
   firstName: z.string().min(1, 'Enter a valid first name').max(50, 'First name must be less than 50 characters').regex(/^[a-zA-Z\s'-]+$/, 'Enter a valid first name'),
@@ -30,49 +32,6 @@ const UserCreationSchema = z.object({
     }
 });
 
-async function generateKeyCloakTokens() {
-  return await axios.post(`${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`, {
-    client_id: process.env.KEYCLOAK_CLIENT_ID || '',
-    client_secret: process.env.KEYCLOAK_CLIENT_SECRET || '',
-    grant_type: 'client_credentials'
-  }, {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  });
-}
-
-async function createKeyCloakUser({
-  firstName, lastName, email, password
-}: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}) {
-  const { data: tokenResponse } = await generateKeyCloakTokens();
-
-  // No response body is sent for successful requests
-  await axios.post(`${process.env.KEYCLOAK_ADMIN_ISSUER}/users`, {
-    username: email,
-    email,
-    firstName,
-    lastName,
-    emailVerified: false,
-    enabled: true,
-    credentials: [
-      {
-        temporary: false,
-        type: 'password',
-        value: password
-      }
-    ]
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${tokenResponse.access_token}`
-    }
-  });
-}
-
 export async function createUser(
   prevState: UserState,
   formData: FormData
@@ -96,7 +55,15 @@ export async function createUser(
   const { firstName, lastName, email } = validatedFields.data;
 
   try {
-    await createKeyCloakUser(validatedFields.data);
+    let role;
+
+    await createKeycloakUser(validatedFields.data);
+
+    if (isAdminEmail(email)) {
+      role = 'admin';
+    } else {
+      role = 'user';
+    }
 
     await prisma.users.create({
       data: {
@@ -105,7 +72,8 @@ export async function createUser(
         email,
         auth: {
           create: {
-            api_key: generateRandomApiKey()
+            api_key: generateRandomApiKey(),
+            role
           }
         }
       }
@@ -144,15 +112,7 @@ export async function fetchUserAuthCredentials(email: string) {
     let client_secret;
 
     if (client_id) {
-      const { data: tokenResponse } = await generateKeyCloakTokens();
-
-      const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${client_id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokenResponse.access_token}`
-        }
-      });
-
+      const { data } = await getClientIdObject(client_id);
       client_secret = data?.[0]?.secret;
     }
 
@@ -233,31 +193,21 @@ export async function createClientCredentials(
       }
     });
 
-    const { data: tokenResponse } = await generateKeyCloakTokens();
-
     if (!client_id) {
+      // Create new client credentials
+
       const newClientId = crypto.randomUUID();
 
       // Create the client on KeyCloak (no response body is sent for successful requests)
-      await axios.post(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients`, {
+      await createKeycloakClient({
         clientId: newClientId,
-        name: applicationName,
-        redirectUris: [ redirectUri ],
-        webOrigins: [ webOrigin ],
-        standardFlowEnabled: false,
-        serviceAccountsEnabled: true,
-        attributes: {
-          'pkce.code.challenge.method': 'S256'
-        }
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokenResponse.access_token}`
-        }
+        applicationName,
+        redirectUri,
+        webOrigin
       });
 
       // Insert the clientId into the database
-      await prisma.users.update({
+      const { auth } = await prisma.users.update({
         where: {
           email
         }, 
@@ -271,45 +221,30 @@ export async function createClientCredentials(
         select: {
           auth: {
             select: {
-              client_id: true
+              role: true
             }
           }
         }
       });
+
+      // Assign role to newly created client credentials
+      await assignKeycloakRealmRole(newClientId, auth.role);
     } else {
+      // Update client credentials
+
       // Fetch the client using its clientId to grab its ID
-      const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${client_id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokenResponse.access_token}`
-        }
-      });
+      const { data } = await getClientIdObject(client_id);
       const id: string = data?.[0]?.id;
 
       // Update all client parameters except the clientId (no response body is sent for successful requests)
-      await axios.put(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients/${id}`, {
-        name: applicationName,
-        redirectUris: [ redirectUri ],
-        webOrigins: [ webOrigin ],
-        standardFlowEnabled: false,
-        serviceAccountsEnabled: true,
-        attributes: {
-          'pkce.code.challenge.method': 'S256'
-        }
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokenResponse.access_token}`
-        }
+      await updateKeycloakClient(id, {
+        applicationName,
+        redirectUri,
+        webOrigin
       });
 
-      // Update the client secret
-      await axios.post(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients/${id}/client-secret`, {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokenResponse.access_token}`
-        }
-      });
+      // Regenerate random client secret
+      await regenerateClientSecret(id);
     }
   } catch (error) {
     console.error('Unable to create credentials: ', error);
@@ -341,15 +276,8 @@ export async function fetchCurrentClientCredentialDetails(email: string) {
   });
 
   if (client_id) {
-    const { data: tokenResponse } = await generateKeyCloakTokens();
-
     // Fetch the client using its clientId
-    const { data } = await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/clients?clientId=${client_id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokenResponse.access_token}`
-      }
-    });
+    const { data } = await getClientIdObject(client_id);
 
     const name: string = data?.[0]?.name;
     const redirectUri: string = data?.[0]?.redirectUris[0];
