@@ -1,8 +1,47 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Flutterwave Next App
 
-## Getting Started
+## Overview
 
-First, run the development server:
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) that utilizes [KeyCloak](https://www.keycloak.org/) for authentication.
+
+This Next.js app is designed to allow authentication, authorization, and Single Sign-On (SSO). It includes public and protected routes and requires users to authenticate themselves using KeyCloak, and uses the same service for managing the access credentials. The app is built using Next.js, NextAuth, Prisma, and KeyCloak.
+
+## Environment Variables
+
+To run the Slack bot app, you need to set the following environment variables in a `.env` file:
+```bash
+# Ensure that dotenv is installed
+SSH_KEY_PATH=~/.ssh/<PRIVATE_SSH_FILE_NAME>
+
+KEYCLOAK_CLIENT_ID="<CLIENT_IF>"
+KEYCLOAK_CLIENT_SECRET="<CLIENT_SECRET>"
+KEYCLOAK_ISSUER="http://<KEYCLOAK_BASE_URL>/realms/<REALM>"
+KEYCLOAK_ADMIN_ISSUER="http://<KEYCLOAK_BASE_URL>/admin/realms/<REALM>"
+
+POSTGRES_PRISMA_URL="<POSTGRESQL_DATABASE_CONNECTION_URL>"
+
+# `openssl rand -base64 32`
+NEXTAUTH_SECRET=""
+NEXTAUTH_URL="http://<APP_BASE_URL>"
+```
+
+Make sure to replace the variables with the actual secret values. A `.env.example` file has also been provided in the project's root directory for your reference. 
+
+You can learn more about getting started with NextAuth and KeyCloak [here](https://next-auth.js.org/providers/keycloak).
+
+If you do not intend to utilize SSH keys when pushing to the remote repository you can ignore the `SSH_KEY_PATH`, otherwise you can specify it and use the configured script for interacting with your remote repository:
+```bash
+npm run remote push --force
+
+# The above example command does the following:
+# Adds your SSH keys to your system (if configured, you would be prompted to input the password for your SSH keys)
+# Runs 'git push --force'
+# Removes the SSH keys afterwards
+```
+
+## Start Development Server
+
+Once the environment variables have been specified, you can start the development server using the following command:
 
 ```bash
 npm run dev
@@ -15,22 +54,3 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
