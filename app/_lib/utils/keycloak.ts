@@ -146,10 +146,6 @@ export async function assignRealmRoleToClient(userId: string, roleName: string) 
 
   const { data: tokenResponse } = await generateKeycloakTokens();
 
-  console.log();
-  console.log("roleObject: ", roleObject);
-  console.log();
-
   return await axios.post(`${process.env.KEYCLOAK_ADMIN_ISSUER}/users/${userId}/role-mappings/realm`, [roleObject], {
     headers: {
       'Content-Type': 'application/json',
