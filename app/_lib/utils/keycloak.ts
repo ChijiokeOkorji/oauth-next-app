@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { keycloakRealmRolesObject } from '../definitions';
 
 export async function generateKeycloakTokens() {
   return await axios.post(`${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`, {
@@ -131,10 +130,10 @@ export async function getServiceAccountUserForClient(clientUUID: string) {
   });
 }
 
-export async function getAvailableRealmRoles(userId: string) {
+export async function getRealmRoleByName(roleName: string) {
   const { data: tokenResponse } = await generateKeycloakTokens();
 
-  return await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/users/${userId}/role-mappings/realm/available`, {
+  return await axios.get(`${process.env.KEYCLOAK_ADMIN_ISSUER}/roles/${roleName}`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${tokenResponse.access_token}`
@@ -142,31 +141,21 @@ export async function getAvailableRealmRoles(userId: string) {
   });
 }
 
-export async function assignRealmRoleToClient(userId: string, realmRoles: keycloakRealmRolesObject[], roleName: string) {
-  let adminRoleObject;
+export async function assignRealmRoleToClient(userId: string, roleName: string) {
+  let { data: roleObject } = await getRealmRoleByName(roleName);
 
-  const iterationEnd = realmRoles.length;
-  let index = 0;
+  const { data: tokenResponse } = await generateKeycloakTokens();
 
-  while (index < iterationEnd) {
-    if (realmRoles[index].name === roleName) {
-      adminRoleObject = realmRoles[index];
-      break;
+  console.log();
+  console.log("roleObject: ", roleObject);
+  console.log();
+
+  return await axios.post(`${process.env.KEYCLOAK_ADMIN_ISSUER}/users/${userId}/role-mappings/realm`, [roleObject], {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${tokenResponse.access_token}`
     }
-
-    index++;
-  }
-
-  if (adminRoleObject) {
-    const { data: tokenResponse } = await generateKeycloakTokens();
-
-    return await axios.post(`${process.env.KEYCLOAK_ADMIN_ISSUER}/users/${userId}/role-mappings/realm`, [adminRoleObject], {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokenResponse.access_token}`
-      }
-    });
-  }
+  });
 }
 
 export async function assignKeycloakRealmRole(clientId: string, roleName: string) {
@@ -176,9 +165,6 @@ export async function assignKeycloakRealmRole(clientId: string, roleName: string
   // Get service acount user for clientId object
   const { data: { id: userId } } = await getServiceAccountUserForClient(clientIdObject?.[0].id);
 
-  // Get available realm roles
-  const { data: availableRealmRoles } = await getAvailableRealmRoles(userId);
-
   // Assign real role to client
-  await assignRealmRoleToClient(userId, availableRealmRoles, roleName);
+  await assignRealmRoleToClient(userId, roleName);
 }

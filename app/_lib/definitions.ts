@@ -1,12 +1,3 @@
-export type keycloakRealmRolesObject = {
-  id: string,
-  name: string,
-  description: string,
-  composite: boolean,
-  clientRole: boolean,
-  containerId: string
-};
-
 export type UserState = {
   errors?: {
     firstName?: string[];
