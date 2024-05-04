@@ -1,4 +1,4 @@
-# Flutterwave Next App
+# OAuth Next App
 
 ## Overview
 
