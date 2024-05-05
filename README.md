@@ -13,7 +13,7 @@ To run the Slack bot app, you need to set the following environment variables in
 # Ensure that dotenv is installed
 SSH_KEY_PATH=~/.ssh/<PRIVATE_SSH_FILE_NAME>
 
-KEYCLOAK_CLIENT_ID="<CLIENT_IF>"
+KEYCLOAK_CLIENT_ID="<CLIENT_ID>"
 KEYCLOAK_CLIENT_SECRET="<CLIENT_SECRET>"
 KEYCLOAK_ISSUER="http://<KEYCLOAK_BASE_URL>/realms/<REALM>"
 KEYCLOAK_ADMIN_ISSUER="http://<KEYCLOAK_BASE_URL>/admin/realms/<REALM>"
