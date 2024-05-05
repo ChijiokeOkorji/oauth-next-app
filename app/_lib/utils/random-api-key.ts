@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 export function generateRandomApiKey() {
-  const prefix = 'FLWSECK-';
+  const prefix = 'APISECK-';
   const suffix = '-X';
   
   // Generate 16 bytes of random data
