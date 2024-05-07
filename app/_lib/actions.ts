@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/_lib/configs/db/prisma';
-import { generateRandomApiKey } from '@/app/_lib/utils/random-api-key';
+import { generateRandomApiKey } from '@/app/_lib/utils/shared-library';
 import { UserState, ClientCredentialsState } from '@/app/_lib/definitions';
 import { assignKeycloakRealmRole, createKeycloakClient, createKeycloakUser, getClientIdObject, regenerateClientSecret, updateKeycloakClient } from '@/app/_lib/utils/keycloak';
 import { isAdminEmail } from './utils/regex-test';
