@@ -1,8 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { EyeIcon, EyeSlashIcon, XCircleIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { EyeIcon, EyeSlashIcon, XCircleIcon, DocumentDuplicateIcon, CheckIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { singleInvocationThrottle } from '@/app/_lib/utils/shared-library';
 import styles from '@/app/_styles/modules/input-field.module.scss';
 
 /*
@@ -54,10 +55,17 @@ type ConfiguredInputFieldProps = BaseInputFieldProps &
   }
 );
 
+const ANIMATION_TOGGLE_SEGMENT_DURATION = 250;// milliseconds
+
 export default function InputField({ type, name, placeholder, errorMessage, errorOnly, initialValue, readOnlyValue = '', canCopy, showValues = false, setShouldShowValues }: ConfiguredInputFieldProps) {
   const [value, setValue] = useState(initialValue || readOnlyValue);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(showValues);
+
+  const [showCheckIcon, setShowCheckIcon] = useState(false);
+  
+  const inputElementRef = useRef<HTMLInputElement>(null);
+  const copyIconAreaElementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialValue) {
@@ -66,8 +74,6 @@ export default function InputField({ type, name, placeholder, errorMessage, erro
       setValue(readOnlyValue);
     }
   }, [initialValue, readOnlyValue]); // Trigger the effect whenever initialValue or readOnlyValue changes
-
-  const inputElement = useRef<HTMLInputElement>(null);
 
   const handleChange = useCallback(({ target }: React.ChangeEvent<HTMLInputElement>) => {
     setValue(target.value);
@@ -81,13 +87,43 @@ export default function InputField({ type, name, placeholder, errorMessage, erro
     setIsInputFocused(false);
   }, []);
 
-  const copyToClipboard = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch (error) {
-      console.error('Failed to copy content to the clipboard: ', error);
-    }
+  // Memoize the throttled function using useMemo
+  const throttledCopyToClipboard = useMemo(() => {
+    return singleInvocationThrottle(async () => {
+      /**
+       * These functions handle the icon animation
+       * A class is added which toggles the icons using scale and transitions
+       * The set timeouts are used to control when each stage of the 'animation' fires
+       */
+      copyIconAreaElementRef.current?.classList.add(styles.transitionDisappear);
+
+      setTimeout(() => {
+        setShowCheckIcon(true);
+        copyIconAreaElementRef.current?.classList.remove(styles.transitionDisappear);
+      }, ANIMATION_TOGGLE_SEGMENT_DURATION);
+
+      setTimeout(() => {
+        copyIconAreaElementRef.current?.classList.add(styles.transitionDisappear);
+      }, (ANIMATION_TOGGLE_SEGMENT_DURATION * 3));
+
+      setTimeout(() => {
+        setShowCheckIcon(false);
+        copyIconAreaElementRef.current?.classList.remove(styles.transitionDisappear);
+      }, ANIMATION_TOGGLE_SEGMENT_DURATION * 4);
+
+      // Copy the text to the clipboard
+      try {
+        inputElementRef.current?.setSelectionRange(0, 0);// prevents input value flickers
+        await navigator.clipboard.writeText(value);
+      } catch (error) {
+        console.error('Failed to copy content to the clipboard: ', error);
+      }
+    }, ANIMATION_TOGGLE_SEGMENT_DURATION * 5);
   }, [value]);
+
+  const copyToClipboard = useCallback(() => {
+    throttledCopyToClipboard();
+  }, [throttledCopyToClipboard]);
 
   const togglePasswordVisibility = useCallback(() => {
     if (setShouldShowValues) {
@@ -96,13 +132,13 @@ export default function InputField({ type, name, placeholder, errorMessage, erro
       setShowPassword((prev: boolean) => !prev);
     }
     
-    requestAnimationFrame(() => {inputElement.current?.focus()});
+    requestAnimationFrame(() => {inputElementRef.current?.focus()});
   }, [showValues, setShouldShowValues]);
   
   const clearInput = useCallback(() => {
     setValue('');
 
-    requestAnimationFrame(() => {inputElement.current?.focus()});
+    requestAnimationFrame(() => {inputElementRef.current?.focus()});
   }, []);
 
   return (
@@ -134,12 +170,18 @@ export default function InputField({ type, name, placeholder, errorMessage, erro
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        ref={inputElement}
+        ref={inputElementRef}
       />
       {
         (canCopy) ? (
-          <div className={styles['icon-area']} onMouseDown={copyToClipboard}>
-            <DocumentDuplicateIcon />
+          <div className={styles['icon-area']} onMouseDown={copyToClipboard} ref={copyIconAreaElementRef}>
+            <div>
+              {showCheckIcon ? (
+                <CheckIcon />
+              ): (
+                <DocumentDuplicateIcon />
+              )}
+            </div>
           </div>
         ) : (
           (!readOnlyValue) ? (
