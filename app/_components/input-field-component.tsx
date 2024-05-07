@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EyeIcon, EyeSlashIcon, XCircleIcon, DocumentDuplicateIcon, CheckIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { singleInvocationThrottle } from '@/app/_lib/utils/shared-library';
+import { ANIMATION_TOGGLE_SEGMENT_DURATION } from '@/app/_lib/utils/constants';
 import styles from '@/app/_styles/modules/input-field.module.scss';
 
 /*
@@ -54,8 +55,6 @@ type ConfiguredInputFieldProps = BaseInputFieldProps &
     setShouldShowValues: React.Dispatch<React.SetStateAction<boolean>>;
   }
 );
-
-const ANIMATION_TOGGLE_SEGMENT_DURATION = 250;// milliseconds
 
 export default function InputField({ type, name, placeholder, errorMessage, errorOnly, initialValue, readOnlyValue = '', canCopy, showValues = false, setShouldShowValues }: ConfiguredInputFieldProps) {
   const [value, setValue] = useState(initialValue || readOnlyValue);
